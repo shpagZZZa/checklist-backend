@@ -1,0 +1,49 @@
+version: "3.5"
+
+services:
+    db:
+        image: mysql
+        environment:
+            MYSQL_DATABASE: 'project'
+            MYSQL_USER: 'user'
+            MYSQL_PASSWORD: 'root'
+            MYSQL_ROOT_PASSWORD: 'root'
+        networks: &networks
+            - localnet
+
+    builder:
+        build:
+            context: .
+            target: builder
+        entrypoint: [ ]
+        command: bash -c "rm -rf var/cache/* && composer install && chown -R 1000:1000 ./ && chmod -R 777 var/*"
+        volumes: &volumes
+            - ./:/app
+        networks: *networks
+
+    app:
+        build:
+            context: .
+            target: app
+        networks: *networks
+        restart: always
+        volumes: *volumes
+
+    nginx:
+        image: nginx:latest
+        volumes:
+            - ./config/nginx.conf/:/etc/nginx/conf.d/nginx.conf
+            - ./public:/app/public
+        networks: *networks
+        restart: always
+        ports:
+            - "80:80"
+        links:
+            - app
+
+networks:
+    localnet:
+        external: true
+
+
+
