@@ -18,23 +18,13 @@ use Symfony\Component\Routing\Annotation\Route;
  */
 class UserController extends BaseController
 {
-    private UserService $userService;
-    private TokenService $tokenService;
-    private EntityManagerInterface $em;
 
-    /**
-     * @param UserService $userService
-     * @param EntityManagerInterface $em
-     * @param TokenService $tokenService
-     */
-    public function __construct(
-        UserService $userService,
-        EntityManagerInterface $em,
-        TokenService $tokenService
-    ) {
-        $this->userService = $userService;
-        $this->em = $em;
-        $this->tokenService = $tokenService;
+    private UserService $userAnotherService;
+
+    public function __construct(\App\Security\UserService $userService, TokenService $tokenService, EntityManagerInterface $em, UserService $userAnotherService)
+    {
+        parent::__construct($userService, $tokenService, $em);
+        $this->userAnotherService = $userAnotherService;
     }
 
     /**
@@ -46,7 +36,7 @@ class UserController extends BaseController
     {
         $body = json_decode($request->getContent(), true);
         try {
-            $user = $this->userService->createUser($body);
+            $user = $this->userAnotherService->createUser($body);
         } catch (NonUniqueResultException $e) {
             return new JsonResponse(['error' => 'Пользователь с таким e-mail уже существует'], Response::HTTP_REQUESTED_RANGE_NOT_SATISFIABLE);
         }
@@ -67,12 +57,12 @@ class UserController extends BaseController
         $body = json_decode($request->getContent(), true);
         $email = $body['email'];
         $password = $body['password'];
-        $user = $this->userService->findUser($email);
+        $user = $this->userAnotherService->findUser($email);
         if (!$user) {
             return new JsonResponse(['not found bro'], Response::HTTP_NOT_FOUND);
         }
 
-        if ($this->userService->encodePassword($password, $user->getSalt()) !== $user->getPassword()) {
+        if ($this->userAnotherService->encodePassword($password, $user->getSalt()) !== $user->getPassword()) {
             return new JsonResponse(['error' => 'неверный пароль'], Response::HTTP_BAD_REQUEST);
         }
 

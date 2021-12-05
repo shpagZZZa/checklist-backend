@@ -15,10 +15,10 @@ class TokenService
 
     /**
      * @param string $token
-     * @return array
+     * @return array|null
      */
-    public function decode(string $token): array
+    public function decode(string $token): ?array
     {
-        return $data = base64_decode($token) ? json_decode($token, true) : [];
+        return $data = ($sum = base64_decode($token)) ? json_decode($sum, true) : null;
     }
 }
