@@ -49,6 +49,22 @@ class CallController extends BaseController
         return new JsonResponse($call->jsonSerialize(), Response::HTTP_CREATED);
     }
 
+    /**
+     * @Route("/{id}", name="get", methods={"GET"})
+     * @param Request $request
+     * @param int $id
+     * @return JsonResponse
+     */
+    public function getAction(Request $request, int $id): JsonResponse
+    {
+        /** @var Call $entity */
+        $entity = $this->em->getRepository(Call::class)->find($id);
+        if (!$entity) {
+            return new JsonResponse(['not found)'], 404);
+        }
+        return new JsonResponse($entity->jsonSerialize(), 200);
+    }
+
     private function insertTasks(array $tasksRequest, Call $call): array
     {
         $result = [];
