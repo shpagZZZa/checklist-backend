@@ -43,6 +43,20 @@ class ChecklistController extends BaseController
     }
 
     /**
+     * @Route("/", name="all-checklists", methods={"GET"})
+     * @param Request $request
+     * @return JsonResponse
+     */
+    public function allChecklistsAction(Request $request): JsonResponse
+    {
+        return new JsonResponse(array_map(function (Checklist $checklist) {
+            return $checklist->jsonSerialize();
+        }, $this->em->getRepository(Checklist::class)->findBy([
+            'author' => $this->userService->getUser()
+        ])));
+    }
+
+    /**
      * @Route("/{id}", name="get", methods={"GET"})
      * @param Request $request
      * @param int $id
