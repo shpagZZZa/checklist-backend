@@ -34,6 +34,10 @@ class ChecklistController extends BaseController
         if (!$entity) {
             return new JsonResponse(['not found)'], 404);
         }
+        /** @var Task $task */
+        foreach ($entity->getTasks() as $task) {
+            $this->setTaskStatus($task);
+        }
         return new JsonResponse($entity->jsonSerialize());
     }
 
@@ -73,11 +77,11 @@ class ChecklistController extends BaseController
             $task->setDescription($tr['description'] ?? null);
             $task->setAuthor($this->userService->getUser());
             $task->setChecklist($checklist);
-            $task->setStatus(Task::STATUS_OPEN);
             $this->em->persist($task);
             $this->em->flush();
             $goals = $this->insertGoals($tr['goals'] ?? [], $task);
             $task->setGoals($goals);
+            $this->setTaskStatus($task);
             $result[] = $task;
         }
         return $result;

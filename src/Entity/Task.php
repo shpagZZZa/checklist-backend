@@ -50,18 +50,20 @@ class Task implements \JsonSerializable
      */
     private $checklist;
 
+    private $status = self::STATUS_OPEN;
+
     /**
-     * @ORM\Column(type="string", length=255, nullable=true)
+     * @ORM\OneToMany(targetEntity=TaskUserRel::class, mappedBy="task")
      */
-    private $status;
+    private $taskUserRels;
 
     public function jsonSerialize()
     {
         return [
             'id' => $this->id,
             'title' => $this->title,
-//            'description' => $this->description,
             'status' => $this->status,
+//            'description' => $this->description,
             'goals' => array_map(function (Goal $goal) {
                 return $goal->jsonSerialize();
             }, $this->goals instanceof PersistentCollection ? $this->goals->toArray() : $this->goals)
@@ -71,6 +73,7 @@ class Task implements \JsonSerializable
     public function __construct()
     {
         $this->goals = new ArrayCollection();
+        $this->taskUserRels = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -165,18 +168,48 @@ class Task implements \JsonSerializable
     }
 
     /**
-     * @param mixed $status
-     */
-    public function setStatus($status): void
-    {
-        $this->status = $status;
-    }
-
-    /**
      * @return mixed
      */
     public function getStatus()
     {
         return $this->status;
+    }
+
+    /**
+     * @param string $status
+     */
+    public function setStatus(string $status): void
+    {
+        $this->status = $status;
+    }
+
+    /**
+     * @return Collection|TaskUserRel[]
+     */
+    public function getTaskUserRels(): Collection
+    {
+        return $this->taskUserRels;
+    }
+
+    public function addTaskUserRel(TaskUserRel $taskUserRel): self
+    {
+        if (!$this->taskUserRels->contains($taskUserRel)) {
+            $this->taskUserRels[] = $taskUserRel;
+            $taskUserRel->setTask($this);
+        }
+
+        return $this;
+    }
+
+    public function removeTaskUserRel(TaskUserRel $taskUserRel): self
+    {
+        if ($this->taskUserRels->removeElement($taskUserRel)) {
+            // set the owning side to null (unless already changed)
+            if ($taskUserRel->getTask() === $this) {
+                $taskUserRel->setTask(null);
+            }
+        }
+
+        return $this;
     }
 }

@@ -41,7 +41,7 @@ class Goal implements \JsonSerializable
         return [
             'id' => $this->id,
             'title' => $this->title,
-            'status' => $this->status
+//            'status' => $this->status
         ];
     }
 

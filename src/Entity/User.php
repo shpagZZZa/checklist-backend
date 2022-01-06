@@ -61,12 +61,18 @@ class User implements UserInterface, \JsonSerializable
      */
     private $checklists;
 
+    /**
+     * @ORM\OneToMany(targetEntity=TaskUserRel::class, mappedBy="user")
+     */
+    private $taskUserRels;
+
     public function __construct()
     {
         $this->tasks = new ArrayCollection();
         $this->files = new ArrayCollection();
         $this->calls = new ArrayCollection();
         $this->checklists = new ArrayCollection();
+        $this->taskUserRels = new ArrayCollection();
     }
 
     /**
@@ -272,6 +278,36 @@ class User implements UserInterface, \JsonSerializable
             // set the owning side to null (unless already changed)
             if ($checklist->getAuthor() === $this) {
                 $checklist->setAuthor(null);
+            }
+        }
+
+        return $this;
+    }
+
+    /**
+     * @return Collection|TaskUserRel[]
+     */
+    public function getTaskUserRels(): Collection
+    {
+        return $this->taskUserRels;
+    }
+
+    public function addTaskUserRel(TaskUserRel $taskUserRel): self
+    {
+        if (!$this->taskUserRels->contains($taskUserRel)) {
+            $this->taskUserRels[] = $taskUserRel;
+            $taskUserRel->setUser($this);
+        }
+
+        return $this;
+    }
+
+    public function removeTaskUserRel(TaskUserRel $taskUserRel): self
+    {
+        if ($this->taskUserRels->removeElement($taskUserRel)) {
+            // set the owning side to null (unless already changed)
+            if ($taskUserRel->getUser() === $this) {
+                $taskUserRel->setUser(null);
             }
         }
 
