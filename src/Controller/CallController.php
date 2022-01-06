@@ -3,6 +3,7 @@
 namespace App\Controller;
 
 use App\Entity\Call;
+use App\Entity\Checklist;
 use App\Entity\Goal;
 use App\Entity\Task;
 use App\Entity\User;
@@ -20,14 +21,24 @@ use Symfony\Component\Routing\Annotation\Route;
 class CallController extends BaseController
 {
     /**
-     * @Route("", name="create", methods={"POST"})
+     * @Route("/from-link/{uniqueId}", name="create-from-link", methods={"POST"})
      * @param Request $request
+     * @param string $uniqueId
      * @return JsonResponse
      */
-    public function createAction(Request $request): JsonResponse
+    public function createFromLinkAction(Request $request, string $uniqueId): JsonResponse
     {
-        $content = json_decode($request->getContent(), true);
+        /** @var Checklist $entity */
+        $entity = $this->em->getRepository(Checklist::class)->findOneBy([
+            'unique_id' => $uniqueId
+        ]);
+        $checklist = $entity->jsonSerialize();
         $call = new Call();
+        $call->setStatus(Call::STATUS_OPEN);
+        $call->setToUser($this->userService->getUser());
+        $call->setChecklist($entity);
+        $this->em->persist($call);
+        $this->em->flush();
 
         return new JsonResponse($call->jsonSerialize(), Response::HTTP_CREATED);
     }

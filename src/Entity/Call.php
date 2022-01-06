@@ -35,6 +35,12 @@ class Call implements \JsonSerializable
      */
     private $status;
 
+    /**
+     * @ORM\ManyToOne(targetEntity=Checklist::class, inversedBy="calls")
+     * @ORM\JoinColumn(nullable=false)
+     */
+    private $checklist;
+
     public function getId(): ?int
     {
         return $this->id;
@@ -70,6 +76,19 @@ class Call implements \JsonSerializable
                 'id' => $this->id,
                 'status' => $this->status,
                 'to' => $this->toUser->jsonSerialize(),
+                'checklist' => $this->checklist->jsonSerialize(),
             ];
+    }
+
+    public function getChecklist(): ?Checklist
+    {
+        return $this->checklist;
+    }
+
+    public function setChecklist(?Checklist $checklist): self
+    {
+        $this->checklist = $checklist;
+
+        return $this;
     }
 }
