@@ -5,6 +5,7 @@ namespace App\Controller;
 
 use App\Entity\Task;
 use App\Entity\TaskUserRel;
+use App\Entity\User;
 use App\Security\UserService;
 use App\Service\Security\TokenService;
 use Doctrine\ORM\EntityManagerInterface;
@@ -31,9 +32,9 @@ abstract class BaseController extends AbstractController
         $this->tokenService = $tokenService;
     }
 
-    protected function setTaskStatus(Task $task): Task
+    protected function setTaskStatus(Task $task, ?int $userId = null): Task
     {
-        $user = $this->userService->getUser();
+        $user = $userId ? $this->em->getRepository(User::class)->find($userId) : $this->userService->getUser();
         /** @var TaskUserRel $relItem */
         $relItem = $this->em->getRepository(TaskUserRel::class)->findOneBy([
             'user' => $user,

@@ -22,6 +22,27 @@ class ChecklistController extends BaseController
 {
 
     /**
+     * @Route("/enemy-status/{userId}/{id}", name="enemy-status", methods={"GET"})
+     * @param Request $request
+     * @param int $userId
+     * @param int $id
+     * @return JsonResponse
+     */
+    public function enemyStatusAction(Request $request, int $userId, int $id): JsonResponse
+    {
+        /** @var Checklist $entity */
+        $entity = $this->em->getRepository(Checklist::class)->find($id);
+        if (!$entity) {
+            return new JsonResponse(['not found)'], 404);
+        }
+        /** @var Task $task */
+        foreach ($entity->getTasks() as $task) {
+            $this->setTaskStatus($task, $userId);
+        }
+        return new JsonResponse($entity->jsonSerialize());
+    }
+
+    /**
      * @Route("/{id}", name="get", methods={"GET"})
      * @param Request $request
      * @param int $id
