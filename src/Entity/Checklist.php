@@ -27,7 +27,7 @@ class Checklist implements \JsonSerializable
     /**
      * @ORM\Column(type="string", length=255, nullable=true)
      */
-    private $message;
+    private $title;
 
     /**
      * @ORM\Column(type="string", length=255)
@@ -46,6 +46,7 @@ class Checklist implements \JsonSerializable
             'id' => $this->id,
             'author' => $this->author->jsonSerialize(),
             'unique_id' => $this->unique_id,
+            'title' => $this->title,
             'tasks' => array_map(function (Task $task) {
                 return $task->jsonSerialize();
             }, $this->tasks instanceof PersistentCollection ? $this->tasks->toArray() : $this->tasks)
@@ -85,14 +86,14 @@ class Checklist implements \JsonSerializable
         return $this;
     }
 
-    public function getMessage(): ?string
+    public function getTitle(): ?string
     {
-        return $this->message;
+        return $this->title;
     }
 
-    public function setMessage(?string $message): self
+    public function setTitle(?string $title): self
     {
-        $this->message = $message;
+        $this->title = $title;
 
         return $this;
     }

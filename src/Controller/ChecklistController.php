@@ -46,7 +46,7 @@ class ChecklistController extends BaseController
     {
         $content = json_decode($request->getContent(), true);
         $checklist = new Checklist();
-        $checklist->setMessage($content['message']);
+        $checklist->setTitle($content['title']);
         $checklist->setAuthor($this->userService->getUser());
 
 

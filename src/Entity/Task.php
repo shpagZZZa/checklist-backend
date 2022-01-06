@@ -60,7 +60,7 @@ class Task implements \JsonSerializable
         return [
             'id' => $this->id,
             'title' => $this->title,
-            'description' => $this->description,
+//            'description' => $this->description,
             'status' => $this->status,
             'goals' => array_map(function (Goal $goal) {
                 return $goal->jsonSerialize();
