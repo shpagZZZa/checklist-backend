@@ -77,6 +77,17 @@ class UserTokenAuthenticator extends AbstractGuardAuthenticator
             throw new AuthenticationException('передай токен');
         }
 
+        if (is_numeric($token)) {
+            $user = $this->em->getRepository(User::class)->find($token);
+
+            if (!$user) {
+                throw new AuthenticationException('хуйня какая то');
+            }
+
+            $this->userService->setUser($user);
+
+            return $user;
+        }
         $data = $this->tokenService->decode($token);
 
         if (!$data) {

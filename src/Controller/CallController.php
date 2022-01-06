@@ -44,6 +44,37 @@ class CallController extends BaseController
     }
 
     /**
+     * @Route("/", name="get-user-calls", methods={"GET"})
+     * @param Request $request
+     * @return JsonResponse
+     */
+    public function getUserCalls(Request $request): JsonResponse
+    {
+        $user = $this->userService->getUser();
+        $calls = $this->em->getRepository(Call::class)->findBy([
+            'toUser' => $user,
+            'status' => Call::STATUS_OPEN
+        ]);
+
+        $checklistsCreated = $this->em->getRepository(Checklist::class)->findBy([
+            'author' => $user
+        ]);
+        $callsCreated = [];
+        foreach ($checklistsCreated as $checklist) {
+            $damn = $this->em->getRepository(Call::class)->findBy([
+                'checklist' => $checklist,
+                'status' => Call::STATUS_OPEN
+            ]);
+            $callsCreated = array_merge($callsCreated, $damn);
+        }
+
+        return new JsonResponse([
+            'calls' => array_map(function (Call $call) {
+                return $call->jsonSerialize();
+            }, array_merge($callsCreated, $calls))
+        ]);
+    }
+    /**
      * @Route("/check-user/{uniqueId}", name="check-user", methods={"GET"})
      * @param Request $request
      * @param string $uniqueId
