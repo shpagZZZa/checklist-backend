@@ -13,6 +13,9 @@ use Doctrine\ORM\PersistentCollection;
  */
 class Task implements \JsonSerializable
 {
+    public const STATUS_OPEN = 'task_open';
+    public const STATUS_CLOSED = 'task_closed';
+
     /**
      * @ORM\Id
      * @ORM\GeneratedValue
@@ -42,10 +45,15 @@ class Task implements \JsonSerializable
     private $goals;
 
     /**
-     * @ORM\ManyToOne(targetEntity=Call::class, inversedBy="tasks")
+     * @ORM\ManyToOne(targetEntity=Checklist::class, inversedBy="tasks")
      * @ORM\JoinColumn(nullable=false)
      */
-    private $taskCall;
+    private $checklist;
+
+    /**
+     * @ORM\Column(type="string", length=255, nullable=true)
+     */
+    private $status;
 
     public function jsonSerialize()
     {
@@ -53,6 +61,7 @@ class Task implements \JsonSerializable
             'id' => $this->id,
             'title' => $this->title,
             'description' => $this->description,
+            'status' => $this->status,
             'goals' => array_map(function (Goal $goal) {
                 return $goal->jsonSerialize();
             }, $this->goals instanceof PersistentCollection ? $this->goals->toArray() : $this->goals)
@@ -143,15 +152,31 @@ class Task implements \JsonSerializable
         return $this;
     }
 
-    public function getTaskCall(): ?Call
+    public function getChecklist(): ?Checklist
     {
-        return $this->taskCall;
+        return $this->checklist;
     }
 
-    public function setTaskCall(?Call $taskCall): self
+    public function setChecklist(?Checklist $checklist): self
     {
-        $this->taskCall = $taskCall;
+        $this->checklist = $checklist;
 
         return $this;
+    }
+
+    /**
+     * @param mixed $status
+     */
+    public function setStatus($status): void
+    {
+        $this->status = $status;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getStatus()
+    {
+        return $this->status;
     }
 }

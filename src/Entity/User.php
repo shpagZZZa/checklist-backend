@@ -56,11 +56,17 @@ class User implements UserInterface, \JsonSerializable
      */
     private $calls;
 
+    /**
+     * @ORM\OneToMany(targetEntity=Checklist::class, mappedBy="author")
+     */
+    private $checklists;
+
     public function __construct()
     {
         $this->tasks = new ArrayCollection();
         $this->files = new ArrayCollection();
         $this->calls = new ArrayCollection();
+        $this->checklists = new ArrayCollection();
     }
 
     /**
@@ -75,6 +81,10 @@ class User implements UserInterface, \JsonSerializable
         ];
     }
 
+//    public function getUserIdentifier(): string
+//    {
+//        return $this->email;
+//    }
     public function getId(): ?int
     {
         return $this->id;
@@ -236,5 +246,35 @@ class User implements UserInterface, \JsonSerializable
     public function __call($name, $arguments)
     {
         // TODO: Implement @method string getUserIdentifier()
+    }
+
+    /**
+     * @return Collection|Checklist[]
+     */
+    public function getChecklists(): Collection
+    {
+        return $this->checklists;
+    }
+
+    public function addChecklist(Checklist $checklist): self
+    {
+        if (!$this->checklists->contains($checklist)) {
+            $this->checklists[] = $checklist;
+            $checklist->setAuthor($this);
+        }
+
+        return $this;
+    }
+
+    public function removeChecklist(Checklist $checklist): self
+    {
+        if ($this->checklists->removeElement($checklist)) {
+            // set the owning side to null (unless already changed)
+            if ($checklist->getAuthor() === $this) {
+                $checklist->setAuthor(null);
+            }
+        }
+
+        return $this;
     }
 }

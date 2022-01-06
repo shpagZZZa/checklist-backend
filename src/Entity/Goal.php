@@ -11,6 +11,7 @@ use Doctrine\ORM\Mapping as ORM;
 class Goal implements \JsonSerializable
 {
     public const STATUS_OPEN = 'goal_open';
+    public const STATUS_COMPLETED = 'goal_completed';
 
     /**
      * @ORM\Id
