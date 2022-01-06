@@ -28,6 +28,32 @@ class UserController extends BaseController
     }
 
     /**
+     * @Route("/change-password", name="change-password", methods={"PUT"})
+     * @param Request $request
+     * @return JsonResponse
+     */
+    public function passwordAction(Request $request): JsonResponse
+    {
+        $body = json_decode($request->getContent(), true);
+        $user = $this->userService->getUser();
+
+        $old = $body['old'];
+        if ($this->userAnotherService->encodePassword($old, $user->getSalt()) !== $user->getPassword()) {
+            return new JsonResponse(['error' => 'неверно указан старый пароль'], Response::HTTP_BAD_REQUEST);
+        }
+
+        $new = $body['new'];
+        $user->setPassword($this->userAnotherService->encodePassword($new, $user->getSalt()));
+        $this->em->persist($user);
+        $this->em->flush();
+        return new JsonResponse([
+            'id' => $user->getId(),
+            'name' => $user->getName(),
+            'email' => $user->getEmail()
+        ], 200);
+    }
+
+    /**
      * @Route("/register", name="register", methods={"POST"})
      * @param Request $request
      * @return JsonResponse
