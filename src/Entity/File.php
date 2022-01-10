@@ -3,12 +3,14 @@
 namespace App\Entity;
 
 use App\Repository\FileRepository;
+use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 
 /**
  * @ORM\Entity(repositoryClass=FileRepository::class)
  */
-class File
+class File implements \JsonSerializable
 {
     /**
      * @ORM\Id
@@ -32,6 +34,26 @@ class File
      * @ORM\JoinColumn(nullable=false)
      */
     private $author;
+
+    /**
+     * @ORM\OneToMany(targetEntity=CallFileRel::class, mappedBy="file")
+     */
+    private $callFileRels;
+
+    public function jsonSerialize()
+    {
+        return [
+            'id' => $this->id,
+            'title' => $this->title,
+            'base64' => $this->base64,
+            'author' => $this->author->jsonSerialze()
+        ];
+    }
+
+    public function __construct()
+    {
+        $this->callFileRels = new ArrayCollection();
+    }
 
     public function getId(): ?int
     {
@@ -70,6 +92,36 @@ class File
     public function setAuthor(?User $author): self
     {
         $this->author = $author;
+
+        return $this;
+    }
+
+    /**
+     * @return Collection|CallFileRel[]
+     */
+    public function getCallFileRels(): Collection
+    {
+        return $this->callFileRels;
+    }
+
+    public function addCallFileRel(CallFileRel $callFileRel): self
+    {
+        if (!$this->callFileRels->contains($callFileRel)) {
+            $this->callFileRels[] = $callFileRel;
+            $callFileRel->setFile($this);
+        }
+
+        return $this;
+    }
+
+    public function removeCallFileRel(CallFileRel $callFileRel): self
+    {
+        if ($this->callFileRels->removeElement($callFileRel)) {
+            // set the owning side to null (unless already changed)
+            if ($callFileRel->getFile() === $this) {
+                $callFileRel->setFile(null);
+            }
+        }
 
         return $this;
     }

@@ -66,6 +66,11 @@ class User implements UserInterface, \JsonSerializable
      */
     private $taskUserRels;
 
+    /**
+     * @ORM\OneToMany(targetEntity=CallFileRel::class, mappedBy="author")
+     */
+    private $callFileRels;
+
     public function __construct()
     {
         $this->tasks = new ArrayCollection();
@@ -73,6 +78,7 @@ class User implements UserInterface, \JsonSerializable
         $this->calls = new ArrayCollection();
         $this->checklists = new ArrayCollection();
         $this->taskUserRels = new ArrayCollection();
+        $this->callFileRels = new ArrayCollection();
     }
 
     /**
@@ -308,6 +314,36 @@ class User implements UserInterface, \JsonSerializable
             // set the owning side to null (unless already changed)
             if ($taskUserRel->getUser() === $this) {
                 $taskUserRel->setUser(null);
+            }
+        }
+
+        return $this;
+    }
+
+    /**
+     * @return Collection|CallFileRel[]
+     */
+    public function getCallFileRels(): Collection
+    {
+        return $this->callFileRels;
+    }
+
+    public function addCallFileRel(CallFileRel $callFileRel): self
+    {
+        if (!$this->callFileRels->contains($callFileRel)) {
+            $this->callFileRels[] = $callFileRel;
+            $callFileRel->setAuthor($this);
+        }
+
+        return $this;
+    }
+
+    public function removeCallFileRel(CallFileRel $callFileRel): self
+    {
+        if ($this->callFileRels->removeElement($callFileRel)) {
+            // set the owning side to null (unless already changed)
+            if ($callFileRel->getAuthor() === $this) {
+                $callFileRel->setAuthor(null);
             }
         }
 

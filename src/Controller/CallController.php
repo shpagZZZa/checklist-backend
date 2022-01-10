@@ -4,6 +4,7 @@ namespace App\Controller;
 
 use App\Entity\Call;
 use App\Entity\Checklist;
+use App\Entity\File;
 use App\Entity\Goal;
 use App\Entity\Task;
 use App\Entity\User;

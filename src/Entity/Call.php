@@ -41,6 +41,16 @@ class Call implements \JsonSerializable
      */
     private $checklist;
 
+    /**
+     * @ORM\OneToMany(targetEntity=CallFileRel::class, mappedBy="file")
+     */
+    private $callFileRels;
+
+    public function __construct()
+    {
+        $this->callFileRels = new ArrayCollection();
+    }
+
     public function getId(): ?int
     {
         return $this->id;
@@ -88,6 +98,37 @@ class Call implements \JsonSerializable
     public function setChecklist(?Checklist $checklist): self
     {
         $this->checklist = $checklist;
+
+        return $this;
+    }
+
+
+    /**
+     * @return Collection|CallFileRel[]
+     */
+    public function getCallFileRels(): Collection
+    {
+        return $this->callFileRels;
+    }
+
+    public function addCallFileRel(CallFileRel $callFileRel): self
+    {
+        if (!$this->callFileRels->contains($callFileRel)) {
+            $this->callFileRels[] = $callFileRel;
+            $callFileRel->setFile($this);
+        }
+
+        return $this;
+    }
+
+    public function removeCallFileRel(CallFileRel $callFileRel): self
+    {
+        if ($this->callFileRels->removeElement($callFileRel)) {
+            // set the owning side to null (unless already changed)
+            if ($callFileRel->getFile() === $this) {
+                $callFileRel->setFile(null);
+            }
+        }
 
         return $this;
     }

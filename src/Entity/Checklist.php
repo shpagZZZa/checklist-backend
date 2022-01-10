@@ -46,6 +46,11 @@ class Checklist implements \JsonSerializable
      */
     private $calls;
 
+    /**
+     * @ORM\Column(type="string", length=255, options={"default" : "default"})
+     */
+    private $approvalType;
+
     public function __construct()
     {
         $this->calls = new ArrayCollection();
@@ -61,7 +66,8 @@ class Checklist implements \JsonSerializable
             'title' => $this->title,
             'tasks' => array_map(function (Task $task) {
                 return $task->jsonSerialize();
-            }, $this->tasks instanceof PersistentCollection ? $this->tasks->toArray() : $this->tasks)
+            }, $this->tasks instanceof PersistentCollection ? $this->tasks->toArray() : $this->tasks),
+            'approvalType' => $this->approvalType
         ];
     }
 
@@ -148,6 +154,18 @@ class Checklist implements \JsonSerializable
                 $call->setChecklist(null);
             }
         }
+
+        return $this;
+    }
+
+    public function getApprovalType(): ?string
+    {
+        return $this->approvalType;
+    }
+
+    public function setApprovalType(string $approvalType): self
+    {
+        $this->approvalType = $approvalType;
 
         return $this;
     }

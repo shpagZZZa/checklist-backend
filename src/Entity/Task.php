@@ -46,7 +46,7 @@ class Task implements \JsonSerializable
 
     /**
      * @ORM\ManyToOne(targetEntity=Checklist::class, inversedBy="tasks")
-     * @ORM\JoinColumn(nullable=false)
+     * @ORM\JoinColumn(nullable=true)
      */
     private $checklist;
 
